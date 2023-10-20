@@ -1,0 +1,463 @@
+function openModal(element, callback='') {
+    $(element).addClass('is-active').trigger('modal:open', [callback]);
+    $('html').addClass('is-clipped');
+};
+function closeModal(element, callback='') {
+    $(element).removeClass('is-active').trigger('modal:close', [callback]);
+    $('html').removeClass('is-clipped');
+};
+
+function rtrim(str, chr) {
+    var rgxtrim = (!chr) ? new RegExp('\\s+$') : new RegExp(chr+'+$');
+    return str.replace(rgxtrim, '');
+};
+
+function number_format (number, decimals, dec_point, thousands_sep) {
+    // Strip all characters but numerical ones.
+    number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+    var n = !isFinite(+number) ? 0 : +number,
+        prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+        sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+        dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+        s = '',
+        toFixedFix = function (n, prec) {
+            var k = Math.pow(10, prec);
+            return '' + Math.round(n * k) / k;
+        };
+    // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+    s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+    if (s[0].length > 3) {
+        s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+    }
+    if ((s[1] || '').length < prec) {
+        s[1] = s[1] || '';
+        s[1] += new Array(prec - s[1].length + 1).join('0');
+    }
+    return s.join(dec);
+};
+
+function format_human_money($num) {
+    if ($num > 1000) {
+        $x = Math.round($num);
+        $x_number_format = number_format($x);
+        $x_array = $x_number_format.split(',');
+        $x_parts = ['nghìn', ' triệu', ' tỷ'];
+        $x_count_parts = $x_array.length - 1;
+        $y = $x_array[1][0]+$x_array[1][1];
+        $y = $x_array[1][0]+$x_array[1][1];
+        $x_display = $x_array[0] + (parseInt($y) !== 0 ? ',' + rtrim($y, '0') : '');
+        $x_display += $x_parts[$x_count_parts - 1];
+
+        return $x_display;
+    }
+
+    return $num;
+};
+
+function highlightText(sub, text) {
+    var regex = new RegExp(text, 'i');
+    var search = sub.match(regex);
+    if (search.length > 0) {
+        search = search[0];
+        sub = sub.replace(search, '<b>'+search+'</b>');
+    }
+    return sub;
+};
+
+function setCookie(cname, cvalue, exdays = 30) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+    let name = cname + "=";
+    let ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function deleteCookie(cname) {
+    document.cookie = cname +'=;path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
+function scrollable(element) {
+    const ele = $(element);
+    ele.css('cursor', 'grab');
+
+    let pos = { top: 0, left: 0, x: 0, y: 0 };
+
+    const mouseDownHandler = function (e) {
+        ele.css('cursor', 'grabbing');
+        ele.css('user-select', 'none');
+
+        pos = {
+            left: ele.scrollLeft(),
+            top: ele.scrollTop(),
+            // Get the current mouse position
+            x: e.clientX,
+            y: e.clientY,
+        };
+
+        document.addEventListener('mousemove', mouseMoveHandler);
+        document.addEventListener('mouseup', mouseUpHandler);
+    };
+
+    const mouseMoveHandler = function (e) {
+        // How far the mouse has been moved
+        const dx = e.clientX - pos.x;
+        const dy = e.clientY - pos.y;
+
+        // Scroll the element
+        ele.scrollTop(pos.top - dy);
+        ele.scrollLeft(pos.left - dx);
+    };
+
+    const mouseUpHandler = function () {
+        ele.css('cursor', 'grab');
+        ele.css('user-select', '');
+
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+    };
+
+    // Attach the handler
+    ele.mousedown(mouseDownHandler);
+}
+
+Array.prototype.unique = function () {
+    const arr = [];
+    for (let i = 0; i < this.length; i++) {
+        if (!arr.includes(this[i])) {
+            arr.push(this[i]);
+        }
+    }
+return arr;
+};
+
+function pushHistoryKeyword(keyword) {
+    var history_keywords = getCookie('history_keyword');
+    if (history_keywords != '') {
+        history_keywords = JSON.parse(history_keywords);
+        history_keywords.unshift(keyword);
+        history_keywords = history_keywords.unique();
+        history_keywords = history_keywords.slice(0, 10);
+        history_keywords = JSON.stringify(history_keywords);
+    } else {
+        history_keywords = JSON.stringify([keyword]);
+    }
+    setCookie('history_keyword', history_keywords);
+}
+
+function removeHistoryKeyword(keyword) {
+    var history_keywords = getCookie('history_keyword');
+    if (history_keywords != '') {
+        history_keywords = JSON.parse(history_keywords);
+        var index = history_keywords.indexOf(keyword);
+        if (index > -1) {
+            history_keywords.splice(index, 1);
+        }
+        if (history_keywords.length > 0) {
+            history_keywords = JSON.stringify(history_keywords);
+            setCookie('history_keyword', history_keywords);
+        } else {
+            deleteCookie('history_keyword');
+        }
+    }
+}
+
+function clearHistoryKeyword() {
+    deleteCookie('history_keyword');
+}
+
+function relative_time(date_str) {
+    if (!date_str) {return;}
+    date_str = $.trim(date_str);
+    date_str = date_str.replace(/\.\d\d\d+/,""); // remove the milliseconds
+    date_str = date_str.replace(/-/,"/").replace(/-/,"/"); //substitute - with /
+    date_str = date_str.replace(/T/," ").replace(/Z/," UTC"); //remove T and substitute Z with UTC
+    date_str = date_str.replace(/([\+\-]\d\d)\:?(\d\d)/," $1$2"); // +08:00 -> +0800
+    var parsed_date = new Date(date_str);
+    var relative_to = (arguments.length > 1) ? arguments[1] : new Date(); //defines relative to what ..default is now
+    var delta = parseInt((relative_to.getTime()-parsed_date)/1000);
+    delta=(delta<2)?2:delta;
+    var r = '';
+    if (delta < 120) {
+        r = '1 phút trước';
+    } else if(delta < (45*60)) {
+        r = (parseInt(delta / 60, 10)).toString() + ' phút trước';
+    } else if(delta < (2*60*60)) {
+        r = '1 giờ trước';
+    } else if(delta < (24*60*60)) {
+        r = '' + (parseInt(delta / 3600, 10)).toString() + ' giờ trước';
+    } else if(delta < (48*60*60)) {
+        r = '1 ngày trước';
+    } else if(delta < (24*60*60*4)) {
+        r = (parseInt(delta / 86400, 10)).toString() + ' ngày trước';
+    } else {
+        r = parsed_date.getDate()+'/'+(parsed_date.getMonth()+1)+'/'+parsed_date.getFullYear();
+    }
+    return r;
+};
+
+(function( $ ){
+    $.fn.time_friendly = function() {
+        $(this).each(function(){
+            if (!$(this).hasClass('is-converted')) {
+                str = $(this).text();
+                str = relative_time(str);
+                $(this).text(str);
+                $(this).addClass('is-converted')
+            }
+        });
+        return this;
+    };
+
+    $.fn.toggleText = function(a, b) {
+        return this.text(this.text() == b ? a : b);
+    };
+
+    $.fn.toggleHtml = function(a, b) {
+        return this.html(this.html() == b ? a : b);
+    };
+})( jQuery );
+
+$(document).ready(function() {
+    $(document).on('change', '.has_inline_label input', function(){
+        var val = $(this).val();
+        if (val != '') {
+            $(this).addClass('has_text');
+        } else {
+            $(this).removeClass('has_text');
+        }
+    });
+    $(document).on('change', '.has_inline_label select', function(){
+        var index = $(this).prop('selectedIndex');
+        if (index != 0) {
+            $(this).addClass('has_selected');
+        } else {
+            $(this).removeClass('has_selected');
+        }
+    });
+    $('.time_friendly').time_friendly();
+
+    $(document).on('click', '[data-toggle=modal]', function(e){
+        e.preventDefault();
+        var target = $(this).data('target');
+        openModal(target);
+    });
+    $('.modal').on('modal:open modal:close', function(e, callback){
+        if(typeof callback === 'function') {
+            callback();
+        }
+    });
+	$(document).on('click', '.modal-close, .modal .modal-background, .btn-close-modal', function(e) {
+		e.preventDefault();
+    	$('.modal').removeClass('is-active').trigger('modal:close');
+    	$('html').removeClass('is-clipped');
+    });
+    $('.btn-close-current-modal').on('click', function(e) {
+        e.preventDefault();
+        $(this).closest('.modal').removeClass('is-active');
+        var number_active_model = $('.modal.is-active').length;
+        if (number_active_model == 0) {
+            $('html').removeClass('is-clipped');
+        }
+    });
+    $('.input_search_wrapper .input_keyword').on('focus', function(){
+        var val = $(this).val();
+        if (val == '') {
+            $('.input_search_wrapper .recent_search_wrapper').removeClass('is-hidden');
+        }
+    });
+    $('.select_dropdown').on('click', function(){
+        $(this).toggleClass('is-active');
+    });
+    $('.select_dropdown_wrapper .select_dropdown').on('click', function(){
+        var parent = $(this).closest('.select_dropdown_wrapper');
+        parent.toggleClass('is-active');
+        parent.addClass('is-hidden');
+
+        var target = $(this).data('target');
+        if (typeof target !== 'undefined') {
+            parent.next().children().addClass('is-hidden');
+            parent.next().find(target).removeClass('is-hidden');
+        }
+    });
+    $('.dropdown_wrapper .btn-close-modal').on('click', function(e){
+        e.preventDefault();
+        $(this).closest('.dropdown_wrapper').prev().removeClass('is-active').removeClass('is-hidden');
+    });
+    $('.search_input').keyup(function(){
+        var filter_text = $(this).val();
+        $(this).closest('.search_content').find('.search_text').each(function(){
+            $(this).html($(this).text());
+            $(this).closest('.search_item').addClass('is-hidden');
+        });
+        $(this).closest('.search_content').find('.search_text').filter(function(){
+            var regex = new RegExp(filter_text, 'i')
+            return regex.test($(this).text());
+        }).each(function(){
+            var text = highlightText($(this).text(), filter_text);
+            $(this).html(text);
+            $(this).closest('.search_item').removeClass('is-hidden');
+        });
+    });
+    $('.toggle-password').click(function() {
+        $(this).find('i.icon-eye').toggleClass('icon-eye-slash');
+        var input = $($(this).attr('toggle'));
+        if (input.attr('type') == 'password') {
+            input.attr('type', 'text');
+        } else {
+            input.attr('type', 'password');
+        }
+    });
+    $('.pagination input').on('focus', function(){
+        var current_page = $(this).data('page');
+        $(this).val(current_page);
+        $(this).attr('type', 'number');
+        this.select();
+    });
+    $(document).mousedown(function(e) {
+        var dropdown_wrapper = $('.dropdown_wrapper');
+        if (!dropdown_wrapper.is(e.target) && dropdown_wrapper.has(e.target).length === 0) {
+            $(dropdown_wrapper).prev().removeClass('is-active').removeClass('is-hidden');
+        }
+        var recent_search_wrapper = $('.input_search_wrapper .recent_search_wrapper');
+        var input_keyword = $('.input_search_wrapper .input_keyword');
+        if (!recent_search_wrapper.is(e.target) && recent_search_wrapper.has(e.target).length === 0 && !input_keyword.is(e.target)) {
+            recent_search_wrapper.addClass('is-hidden');
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    function closeAllModals() {
+        (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+            closeModal($modal);
+        });
+    }
+
+    // Add a click event on buttons to open a specific modal
+    (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+        const modal = $trigger.dataset.target;
+        const $target = document.getElementById(modal);
+
+        $trigger.addEventListener('click', () => {
+            openModal($target);
+        });
+    });
+
+    // Add a click event on various child elements to close the parent modal
+    (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete') || []).forEach(($close) => {
+        const $target = $close.closest('.modal');
+
+        $close.addEventListener('click', () => {
+            closeModal($target);
+        });
+    });
+
+    // Add a keyboard event to close all modals
+    document.addEventListener('keydown', (event) => {
+        const e = event || window.event;
+
+        if (e.keyCode === 27) { // Escape key
+            closeAllModals();
+        }
+    });
+});
+
+function to_vietnamese(number) {
+    var str = parseInt(number) + '';
+    var i = 0;
+    var arr = [];
+    var index = str.length;
+    var result = [];
+    var rsString = '';
+
+    if (index == 0 || str == 'NaN') {
+        return '';
+    }
+
+    // Chia chuỗi số thành một mảng từng khối có 3 chữ số
+    while (index >= 0) {
+        arr.push(str.substring(index, Math.max(index - 3, 0)));
+        index -= 3;
+    }
+    var str = '';
+    if (arr.length >= 3) {
+        for (i = arr.length - 1; i >= 3; i--) {
+            if (arr[i] != '' && arr[i] != '000') {
+                str += String(arr[i])
+            }
+        }
+    }
+    if (str != '') {
+        str += ' tỷ ';
+    }
+    if (arr[2] != '' && arr[2] != '000') {
+        str += String(arr[2]) + ' triệu'
+    }
+    return str;
+
+    // Lặp từng khối trong mảng trên và convert từng khối đấy ra chữ Việt Nam
+    for (i = arr.length - 1; i >= 0; i--) {
+        if (arr[i] != '' && arr[i] != '000') {
+            result.push(convert_block_three(arr[i]));
+
+            // Thêm đuôi của mỗi khối
+            if (dvBlock[i]) {
+                result.push(dvBlock[i]);
+            }
+        }
+    }
+
+    // Join mảng kết quả lại thành chuỗi string
+    rsString = result.join(' ');
+
+    // Trả về kết quả kèm xóa những ký tự thừa
+    return rsString.replace(/[0-9]/g, '').replace(/ /g, ' ').replace(/ $/, '');
+}
+
+const num2Word2 = function () {
+    var t = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"],
+        r = function (r, n) {
+            var o = "",
+                a = Math.floor(r / 10),
+                e = r % 10;
+            return a > 1 ? (o = " " + t[a] + " mươi", 1 == e && (o += " mốt")) : 1 == a ? (o = " mười", 1 == e && (o += " một")) : n && e > 0 && (o = " lẻ"), 5 == e && a >= 1 ? o += " lăm" : 4 == e && a >= 1 ? o += " tư" : (e > 1 || 1 == e && 0 == a) && (o += " " + t[e]), o
+        },
+        n = function (n, o) {
+            var a = "",
+                e = Math.floor(n / 100),
+                n = n % 100;
+            return o || e > 0 ? (a = " " + t[e] + " trăm", a += r(n, !0)) : a = r(n, !1), a
+        },
+        o = function (t, r) {
+            var o = "",
+                a = Math.floor(t / 1e6),
+                t = t % 1e6;
+            a > 0 && (o = n(a, r) + " triệu", r = !0);
+            var e = Math.floor(t / 1e3),
+                t = t % 1e3;
+            return e > 0 && (o += n(e, r) + " ngàn", r = !0), t > 0 && (o += n(t, r)), o
+        };
+    return {
+        convert: function (r) {
+            if (0 == r) return t[0];
+            var n = "",
+                a = "";
+            do ty = r % 1e9, r = Math.floor(r / 1e9), n = r > 0 ? o(ty, !0) + a + n : o(ty, !1) + a + n, a = " tỷ"; while (r > 0);
+            return n.trim()
+        }
+    }
+}();

@@ -9,7 +9,7 @@ body{
 
 header{
     background-color: #f05626;
-    width: 1365px;
+    max-width: auto;
 }
 .container {
     width: 1200px !important;
@@ -43,4 +43,10 @@ header{
 }
 section{
     padding: 1em;
+}
+/**/
+
+.columns.is-mobile>.column.is-6 {
+    flex: none;
+    width: 50%;
 }

@@ -1,6 +1,6 @@
 @extends('layout')
-@section('content')
 
+@section('content')
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +9,6 @@
     <title>Chợ xe</title>
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/main.css">
-    <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -18,134 +17,63 @@
 <body>
     <div class="body-m">
         <main>
-            <section class="pb-0">
-                <div class="container">
-                    <div class="card">
-                        <div class="card-content">
-                            <h2>Từ khóa tìm kiếm mới nhất</h2>
-                        </div>
-                        <div class="popular-keyword">
-                            <a href="" class="text-decora">Hyundai Accent</a>
-                            <a href="" class="text-decora">Mazda CX-5</a>
-                            <a href="" class="text-decora">Xe 7 chỗ dưới 1 tỷ</a>
-                            <a href="" class="text-decora">Ford Explorer 2022</a>
-                            <a href="" class="text-decora">Bán tải cũ giá rẻ</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section>
-                <div class="container">
-                    <h2>Tin mới nhất</h2>
-                    <div class="mt-2" id="DataList">
-                        <div class="columns is-mobile is-multiline list-car">
-                        @foreach($product as $key => $row)
-                            <div class="column is-3">
-                               <div class="is-3 list_car_item">
-                                <div class="list_car_item_photo">
-                                    <a href="{{ URL::to('/vehicle/'.$row->id)}}">
-                                        <img alt="{{ $row->name_pro }}" src="{{asset('admin_image/' . $row->image)}}" class="image" >
-                                    </a>
-                                </div>
-                                <div class="list_car_item_info">
-                                    <div>
-                                        <a href="{{ URL::to('/vehicle/'.$row->id)}}" class="car_name">{{$row->name_pro}}</a>
-                                    </div>
-                                    <div class="car_item_attribute">
-                                        <span>{{$row->year_created}}</span>
-                                        <span>{{$row->type_pro}}</span>
-                                        <span>{{$row->traveled}} km</span>
-                                    </div>
-                                    <div class="car_price">
-                                        {{$row->price_pro}}
-                                    </div>
-                                    <div class="car_item_meta">
-                                        <span>{{$row->created_at}}</span>
-                                        <span class="time_friendly is_converted">{{$row->updated_at}}</span>
-                                    </div>
-                                </div>
-                               </div>
-                            </div>
-                        @endforeach
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section>
-                <div class="container">
-                    <div class="card">
-                        <div class="card-conrent pb-0">
-                            <h2>Salon oto</h2>
-                            <div class="columns is-mobile is-multiline list_salon">
-                                <div class="column is-6 list_salon_item">
-                                    <div class="list_salon_item_photo">
-                                        <a href="#"><img src="/img/car-10.jpg" class="image"></a>
-                                    </div>
-                                    <div class="list_salon_item_info">
-                                        <div class="salon_name">
-                                            <a href="#">Chợ Xe Kiểu Mỹ</a>
+            <main class="login-form">
+                <div class="cotainer">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">Register</div>
+                                <div class="card-body">
+                                    <form action="{{ route('register.post') }}" method="POST">
+                                        @csrf
+                                        <div class="form-group row">
+                                            <label for="name" class="col-md-4 col-form-label text-md-right">Username</label>
+                                            <div class="col-md-6">
+                                                <input type="text" id="name" class="form-control" name="name" required autofocus>
+                                                @if ($errors->has('name'))
+                                                    <span class="text-danger">{{ $errors->first('name') }}</span>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <div class="location">135 Nguyễn trãi</div>
-                                        <div class="phone">0911442883</div>
-                                    </div>
-                                </div>
-                                <div class="column is-6 list_salon_item">
-                                    <div class="list_salon_item_photo">
-                                        <a href="#"><img src="/img/car-10.jpg" class="image"></a>
-                                    </div>
-                                    <div class="list_salon_item_info">
-                                        <div class="salon_name">
-                                            <a href="#">Chợ Xe Kiểu Mỹ</a>
+                                        <div class="form-group row">
+                                            <label for="email_address" class="col-md-4 col-form-label text-md-right">E-Mail Address</label>
+                                            <div class="col-md-6">
+                                                <input type="text" id="email_address" class="form-control" name="email" required autofocus>
+                                                @if ($errors->has('email'))
+                                                    <span class="text-danger">{{ $errors->first('email') }}</span>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <div class="location">135 Nguyễn trãi</div>
-                                        <div class="phone">0911442883</div>
-                                    </div>
-                                </div>
-                                <div class="column is-6 list_salon_item">
-                                    <div class="list_salon_item_photo">
-                                        <a href="#"><img src="/img/car-10.jpg" class="image"></a>
-                                    </div>
-                                    <div class="list_salon_item_info">
-                                        <div class="salon_name">
-                                            <a href="#">Chợ Xe Kiểu Mỹ</a>
+                                        <div class="form-group row">
+                                            <label for="password" class="col-md-4 col-form-label text-md-right">Password</label>
+                                            <div class="col-md-6">
+                                                <input type="password" id="password" class="form-control" name="password" required>
+                                                @if ($errors->has('password'))
+                                                    <span class="text-danger">{{ $errors->first('password') }}</span>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <div class="location">135 Nguyễn trãi</div>
-                                        <div class="phone">0911442883</div>
-                                    </div>
-                                </div>
-                                <div class="column is-6 list_salon_item">
-                                    <div class="list_salon_item_photo">
-                                        <a href="#"><img src="/img/car-10.jpg" class="image"></a>
-                                    </div>
-                                    <div class="list_salon_item_info">
-                                        <div class="salon_name">
-                                            <a href="#">Chợ Xe Kiểu Mỹ</a>
+                                        <div class="form-group row">
+                                            <div class="col-md-6 offset-md-4">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" name="remember"> Remember Me
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="location">135 Nguyễn trãi</div>
-                                        <div class="phone">0911442883</div>
-                                    </div>
-                                </div>
-                                <div class="column is-6 list_salon_item">
-                                    <div class="list_salon_item_photo">
-                                        <a href="#"><img src="/img/car-10.jpg" class="image"></a>
-                                    </div>
-                                    <div class="list_salon_item_info">
-                                        <div class="salon_name">
-                                            <a href="#">Chợ Xe Kiểu Mỹ</a>
+                                        <div class="col-md-6 offset-md-4">
+                                            <button type="submit" class="btn btn-primary">
+                                                Register
+                                            </button>
                                         </div>
-                                        <div class="location">135 Nguyễn trãi</div>
-                                        <div class="phone">0911442883</div>
-                                    </div>
-                                </div>
-                                <div class="column is-6 list_salon_item "></div>
-                                <div class="has-text-centered mb-3">
-                                    <a href="#" class="btn_view_more has_right_arrow">Xem thêm</a>
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
+            </main>
             <div class="container">
                 <div class="card">
                     <div class="card-content">
@@ -302,4 +230,8 @@
 </body>
 </html>
 
+
 @endsection
+
+
+
